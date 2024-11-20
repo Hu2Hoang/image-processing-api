@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Python API</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+      text-align: center;
+    }
+    input[type="file"] {
+      margin: 15px 0;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .output {
+      margin-top: 20px;
+      text-align: left;
+    }
+    .output pre {
+      background-color: #e8e8e8;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test Python API</h1>
+  <div class="container">
+    <form id="uploadForm">
+      <input type="file" id="fileInput" accept="image/*" required />
+      <button type="button" onclick="uploadAndProcess()">Upload and Process</button>
+    </form>
+    <div class="output" id="output"></div>
+  </div>
+
+  <script>
+    async function uploadAndProcess() {
+      const fileInput = document.getElementById("fileInput");
+      const outputDiv = document.getElementById("output");
+
+      // Xóa nội dung cũ trong output
+      outputDiv.innerHTML = "";
+
+      // Kiểm tra file được chọn
+      if (!fileInput.files.length) {
+        outputDiv.innerHTML = `<p style="color: red;">Please select a file to upload.</p>`;
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Gửi yêu cầu POST tới API
+      try {
+        const response = await fetch("http://127.0.0.1:5000/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        // Xử lý lỗi
+        if (!response.ok) {
+          const errorData = await response.json();
+          outputDiv.innerHTML = `<p style="color: red;">Error: ${errorData.error}</p>`;
+          return;
+        }
+
+        // Hiển thị kết quả trả về
+        const result = await response.json();
+        outputDiv.innerHTML = `
+          <h3>Processed Successfully!</h3>
+          <p>Saved folder path: <strong>${result.folder_path}</strong></p>
+          <pre>${JSON.stringify(result.files, null, 2)}</pre>
+        `;
+      } catch (error) {
+        outputDiv.innerHTML = `<p style="color: red;">Error occurred: ${error.message}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>

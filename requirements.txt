@@ -1,0 +1,4 @@
+flask==3.0.3
+Flask-Cors==5.0.0
+opencv-python==4.5.2.52
+werkzeug==3.0.6
